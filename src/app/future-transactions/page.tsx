@@ -595,15 +595,14 @@ export default function FutureTransactionsPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [txs, cats, metrics] = await Promise.all([
+      const [txs, cats, summary] = await Promise.all([
         scheduledTransactionService.getAll(),
         categoryService.getAll(),
-        transactionService.getDashboardMetrics(),
+        transactionService.getMonthSummary(),
       ]);
       setTransactions(txs);
       setCategories(cats);
-      // Saldo Atual = soma dos saldos de todas as contas menos os lançamentos do dia
-      const balance = metrics.currentBalance - (metrics.todayIncome - metrics.todayExpense);
+      const balance = summary.balance;
       setCurrentBalance(balance);
       setProjections(scheduledTransactionService.buildProjections(txs, balance, 6));
     } catch (err) {

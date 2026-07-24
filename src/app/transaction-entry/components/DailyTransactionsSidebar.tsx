@@ -23,9 +23,8 @@ export default function DailyTransactionsSidebar() {
     load();
   }, []);
 
-  const confirmedTransactions = transactions.filter((t) => t.status === 'confirmed');
-  const totalIncome = confirmedTransactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const totalExpense = confirmedTransactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const totalIncome = transactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const totalExpense = transactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const dailyBalance = totalIncome - totalExpense;
 
   return (
@@ -73,7 +72,7 @@ export default function DailyTransactionsSidebar() {
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3 className="text-sm font-semibold text-foreground">Lançamentos de Hoje</h3>
           <span className="text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
-            {confirmedTransactions.length}
+            {transactions.length}
           </span>
         </div>
         {loading ? (
@@ -86,7 +85,7 @@ export default function DailyTransactionsSidebar() {
           </div>
         ) : (
           <div className="divide-y divide-border">
-            {confirmedTransactions.map((t) => (
+            {transactions.map((t) => (
               <div key={t.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/40 transition-colors">
                 {t.type === 'income' ? (
                   <ArrowUpCircle size={16} className="text-positive flex-shrink-0" />
