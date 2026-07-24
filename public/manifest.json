@@ -1,0 +1,31 @@
+{
+    "name": "FinanceControl \u2014 Controle Financeiro",
+    "short_name": "FinanceControl",
+    "description": "Gerencie receitas, despesas e or\u00e7amentos pessoais com vis\u00e3o completa das suas finan\u00e7as.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#6366f1",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "pt-BR",
+    "icons": [
+        {
+            "src": "/assets/images/app_logo.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/assets/images/app_logo.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "finance",
+        "productivity"
+    ],
+    "screenshots": []
+}
