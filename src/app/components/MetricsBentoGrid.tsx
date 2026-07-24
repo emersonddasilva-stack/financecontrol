@@ -1,121 +1,91 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import MetricCard from './MetricCard';
-import { transactionService } from '@/lib/services/financeService';
 
-interface DashboardMetrics {
-  currentBalance: number;
-  todayIncome: number;
-  todayExpense: number;
-  todayCount: number;
-  monthIncome: number;
-  monthExpense: number;
-}
-
-function fmt(value: number): string {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
+// Grid plan: 6 cards → grid-cols-4
+// Row 1: hero (projected balance, spans 2 cols) + net balance + savings rate = 4 cols
+// Row 2: monthly income + monthly expenses + burn rate = 3 cards, each 1 col + last spans remaining
+// Adjusted: Row 2: 4-col row with 3 cards, last card spans 2 cols to fill
 
 export default function MetricsBentoGrid() {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-
-  useEffect(() => {
-    transactionService.getDashboardMetrics()
-      .then(setMetrics)
-      .catch((err) => console.error('Failed to load dashboard metrics:', err));
-  }, []);
-
-  const currentBalance = metrics?.currentBalance ?? 0;
-  const todayIncome = metrics?.todayIncome ?? 0;
-  const todayExpense = metrics?.todayExpense ?? 0;
-  const todayCount = metrics?.todayCount ?? 0;
-  const monthIncome = metrics?.monthIncome ?? 0;
-  const monthExpense = metrics?.monthExpense ?? 0;
-  const monthBalance = monthIncome - monthExpense;
-  const savingsRate = monthIncome > 0 ? ((monthIncome - monthExpense) / monthIncome) * 100 : 0;
-  const todayBalance = todayIncome - todayExpense;
-
-  const loading = metrics === null;
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-4">
-      {/* Hero: Saldo Atual — spans 2 cols */}
+      {/* Hero: Projected Month-End Balance — spans 2 cols */}
       <div className="sm:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
         <MetricCard
-          id="metric-current-balance"
-          label="Saldo Atual"
-          value={loading ? '...' : fmt(currentBalance)}
-          trend={loading ? '...' : `${monthBalance >= 0 ? '+' : ''}${fmt(monthBalance)}`}
-          trendDirection={monthBalance >= 0 ? 'up' : 'down'}
-          subtext="Saldo das contas menos lançamentos confirmados"
-          variant="hero"
-          sparklineData={undefined}
-        />
-      </div>
-
-      {/* Lançamentos de Hoje */}
-      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
-        <MetricCard
-          id="metric-today"
-          label="Lançamentos de Hoje"
-          value={loading ? '...' : `${todayCount} lançamento${todayCount !== 1 ? 's' : ''}`}
-          trend={loading ? '...' : `${todayBalance >= 0 ? '+' : ''}${fmt(todayBalance)}`}
-          trendDirection={todayBalance >= 0 ? 'up' : 'down'}
-          subtext={loading ? '' : `Receitas: ${fmt(todayIncome)} · Despesas: ${fmt(todayExpense)}`}
-          variant={todayBalance >= 0 ? 'positive' : 'negative'}
-        />
-      </div>
-
-      {/* Taxa de Poupança */}
-      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
-        <MetricCard
-          id="metric-savings"
-          label="Taxa de Poupança"
-          value={loading ? '...' : `${savingsRate.toFixed(1)}%`}
-          trend={savingsRate >= 30 ? 'Meta atingida ✓' : `Meta: 30%`}
-          trendDirection={savingsRate >= 30 ? 'up' : 'down'}
-          subtext="Do mês atual"
-          variant={savingsRate >= 30 ? 'positive' : 'warning'}
-        />
-      </div>
-
-      {/* Receitas do Mês */}
-      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
-        <MetricCard
-          id="metric-income"
-          label="Receitas (Mês Atual)"
-          value={loading ? '...' : fmt(monthIncome)}
-          trend={monthIncome > 0 ? 'Confirmadas' : 'Sem receitas'}
+          id="metric-projected"
+          label="Saldo Projetado (Fim do Mês)"
+          value="R$ 1.847,00"
+          trend="+12,3%"
           trendDirection="up"
-          subtext="Lançamentos confirmados"
+          subtext="Baseado nos últimos 14 dias de julho"
+          variant="hero"
+          sparklineData={[1200, 1350, 1100, 1480, 1600, 1720, 1847]}
+        />
+      </div>
+
+      {/* Net Balance */}
+      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
+        <MetricCard
+          id="metric-net"
+          label="Saldo Atual"
+          value="R$ 3.241,55"
+          trend="+R$ 318,40"
+          trendDirection="up"
+          subtext="vs. mês anterior"
           variant="positive"
         />
       </div>
 
-      {/* Despesas do Mês */}
+      {/* Savings Rate */}
+      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
+        <MetricCard
+          id="metric-savings"
+          label="Taxa de Poupança"
+          value="23,4%"
+          trend="-1,8pp"
+          trendDirection="down"
+          subtext="Meta: 30% ao mês"
+          variant="warning"
+        />
+      </div>
+
+      {/* Monthly Income */}
+      <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
+        <MetricCard
+          id="metric-income"
+          label="Receitas (Julho)"
+          value="R$ 8.750,00"
+          trend="+R$ 250,00"
+          trendDirection="up"
+          subtext="vs. junho"
+          variant="positive"
+        />
+      </div>
+
+      {/* Monthly Expenses */}
       <div className="sm:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1">
         <MetricCard
           id="metric-expenses"
-          label="Despesas (Mês Atual)"
-          value={loading ? '...' : fmt(monthExpense)}
-          trend={monthExpense > 0 ? 'Confirmadas' : 'Sem despesas'}
+          label="Despesas (Julho)"
+          value="R$ 6.708,45"
+          trend="+R$ 423,10"
           trendDirection="down"
-          subtext="Lançamentos confirmados"
+          subtext="vs. junho"
           variant="negative"
         />
       </div>
 
-      {/* Saldo do Mês — spans 2 cols */}
+      {/* Burn Rate — spans 2 cols to fill row */}
       <div className="sm:col-span-2 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
         <MetricCard
-          id="metric-month-balance"
-          label="Resultado do Mês"
-          value={loading ? '...' : fmt(monthBalance)}
-          trend={loading ? '...' : `${monthBalance >= 0 ? '+' : ''}${((monthIncome > 0 ? monthBalance / monthIncome : 0) * 100).toFixed(1)}% da receita`}
-          trendDirection={monthBalance >= 0 ? 'up' : 'down'}
-          subtext="Receitas menos despesas confirmadas"
-          variant={monthBalance >= 0 ? 'neutral' : 'negative'}
+          id="metric-burnrate"
+          label="Burn Rate Diário"
+          value="R$ 478,46"
+          trend="17 dias restantes"
+          trendDirection="neutral"
+          subtext="Projeção: R$ 8.132 no mês"
+          variant="neutral"
+          sparklineData={[310, 520, 280, 640, 410, 590, 478]}
         />
       </div>
     </div>
